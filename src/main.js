@@ -1,118 +1,113 @@
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
-import SimpleLightbox from 'simplelightbox';
-import 'simplelightbox/dist/simple-lightbox.min.css';
+import SimpleLightbox from "simplelightbox";
+import "simplelightbox/dist/simple-lightbox.min.css";
 
-const BASE_URL = 'https://pixabay.com/api';
-const galleryContainer = document.querySelector('.gallery');
-const loader = document.querySelector('.loader');
+const BASE_URL = 'https://pixabay.com/api/';
+const API_KEY = '41701983-23ca5d5908e2c78927e8095f2';
 
-document.addEventListener('DOMContentLoaded', function () {
-  document.querySelector('.form').addEventListener('submit', function (event) {
-    event.preventDefault();
+const lightbox = new SimpleLightbox(".gallery-item");
 
-    loader.style.display = 'block';
+const getBaseUrl = () => {
+  const url = new URL(BASE_URL);
+  url.searchParams.append("key", API_KEY);
+  url.searchParams.append("image_type", "photo");
+  url.searchParams.append("orientation", "horizontal");
+  url.searchParams.append("safesearch", true);
 
-    const searchQuery = document.querySelector('.input').value;
-    searchImages(searchQuery);
-  });
-});
+  return url;
+}
 
-function searchImages(query) {
-  const searchParams = {
-    key: '41530173-f95b78bdec41263a85620f647',
-    q: query,
-    image_type: 'photo',
-    orientation: 'horizontal',
-    safesearch: 'true',
-  };
+const fetchImg = (query) => {
+  const url = getBaseUrl();
+  url.searchParams.append("q", query);
 
-  fetch(`${BASE_URL}/?${new URLSearchParams(searchParams)}`)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(response.status);
+  return fetch(url)
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`HTTP error! Status: ${res.status}`);
       }
-      return response.json();
+      return res.json();
     })
-    .then(data => {
-      loader.style.display = 'none';
-      loader.classList.remove('loader--active');
-
-      displayImages(data.hits);
-    })
-    .catch(() => {
-      loader.style.display = 'none';
-      loader.classList.remove('loader--active');
-
-      showErrorToast();
+    .then((data) => data.hits)
+    .catch((error) => {
+      console.error(`Error fetching images:`, error);
+      throw error;
     });
+};
 
-  function displayImages(images) {
-    galleryContainer.innerHTML = '';
+const renderGallery = (images) => {
+  const galleryContainer = document.getElementById("gallery");
+  galleryContainer.innerHTML = "";
 
-    if (images.length > 0) {
-      const imageCards = images.map(image => {
-        const card = document.createElement('div');
-        card.classList.add('card');
+  images.forEach((image) => {
+    const { webformatURL, largeImageURL, tags, likes, views, comments, downloads } = image;
+    galleryContainer.insertAdjacentHTML('beforeend', `
+    <li class="gallery-item">
+    <a href="${largeImageURL}">
+      <img src="${webformatURL}" alt="${tags}"/>
+    <a/>
+    <p>Likes: ${likes}<p/>
+    <p>view: ${views}<p/>
+    <p>comments: ${comments}<p/>
+    <p>downloads: ${downloads}<p/>
+    </li>
+    `
+    );
+  });
 
-        const largeImageLink = document.createElement('a');
-        largeImageLink.href = image.largeImageURL;
-        largeImageLink.dataset.lightbox = 'gallery';
-        largeImageLink.setAttribute('data-title', image.tags);
+  lightbox.refresh();
+};
 
-        const img = document.createElement('img');
-        img.src = image.webformatURL;
-        img.alt = image.tags;
+let loader = document.getElementById("loader");
+let searchButton = document.getElementById("search-button");
 
-        largeImageLink.appendChild(img);
+const showLoadingIndicator = () => {
+  loader.style.display = "block";
 
-        card.appendChild(largeImageLink);
+  searchButton.disabled = true;
+};
 
-        const details = document.createElement('div');
-        details.classList.add('details');
+const hideLoadingIndicator = () => {
+  loader.style.display = "none";
 
-        const likes = document.createElement('p');
-        likes.textContent = `Likes: ${image.likes}`;
-        details.appendChild(likes);
+  searchButton.disabled = false;
+};
 
-        const views = document.createElement('p');
-        views.textContent = `Views: ${image.views}`;
-        details.appendChild(views);
+const showMessage = (message, type = "info") => {
+  iziToast[type]({
+    title: message,
+    position: "topCenter",
+  });
+};
 
-        const comments = document.createElement('p');
-        comments.textContent = `Comments: ${image.comments}`;
-        details.appendChild(comments);
+const handleSearсhFormSubmit = (event) => {
+  event.preventDefault();
 
-        const downloads = document.createElement('p');
-        downloads.textContent = `Downloads: ${image.downloads}`;
-        details.appendChild(downloads);
+  const searchInput = document.getElementById("search-input");
+  const query = searchInput.value.trim();
 
-        card.appendChild(details);
-
-        return card;
-      });
-
-      galleryContainer.append(...imageCards);
-
-      const lightbox = new SimpleLightbox('.gallery a', {});
-      lightbox.refresh();
-    } else {
-      showNoImagesFoundToast();
-    }
+  if (query.length < 3) {
+    showMessage("Please enter a search query", "warning");
+    return;
   }
-}
 
-function showErrorToast() {
-  iziToast.error({
-    title: 'Error',
-    message: 'An error occurred. Please try again later.',
-  });
-}
+  showLoadingIndicator();
 
-function showNoImagesFoundToast() {
-  iziToast.info({
-    title: 'No Images Found',
-    message:
-      'Sorry, there are no images matching your search query. Please try again!',
-  });
-}
+  fetchImg(query)
+    .then((images) => {
+      hideLoadingIndicator();
+      if (images.length > 0) {
+        renderGallery(images);
+      } else {
+        showMessage("Sorry, there are no images matching your search query. Please try again.", "error");
+      }
+    })
+    .catch((error) => {
+      hideLoadingIndicator();
+      showMessage("Error fetching images. Pease try again later.", "error");
+    });
+};
+
+const searchForm = document.getElementById("form");
+searchForm.addEventListener("submit", handleSearсhFormSubmit);
