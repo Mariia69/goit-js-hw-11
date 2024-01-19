@@ -1,12 +1,10 @@
-import iziToast from 'izitoast';
-import 'izitoast/dist/css/iziToast.min.css';
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
+import iziToast from 'izitoast';
+import 'izitoast/dist/css/iziToast.min.css';
 
 const BASE_URL = 'https://pixabay.com/api/';
 const API_KEY = '41701983-23ca5d5908e2c78927e8095f2';
-
-const lightbox = new SimpleLightbox(".gallery-item");
 
 const getBaseUrl = () => {
   const url = new URL(BASE_URL);
@@ -17,7 +15,7 @@ const getBaseUrl = () => {
 
   return url;
 }
-
+const lightbox = new SimpleLightbox(".gallery-item");
 const fetchImg = (query) => {
   const url = getBaseUrl();
   url.searchParams.append("q", query);
@@ -81,7 +79,7 @@ const showMessage = (message, type = "info") => {
   });
 };
 
-const handleSearсhFormSubmit = (event) => {
+const handleSearchFormSubmit = (event) => {
   event.preventDefault();
 
   const searchInput = document.getElementById("search-input");
@@ -110,4 +108,4 @@ const handleSearсhFormSubmit = (event) => {
 };
 
 const searchForm = document.getElementById("form");
-searchForm.addEventListener("submit", handleSearсhFormSubmit);
+searchForm.addEventListener("submit", handleSearchFormSubmit);
