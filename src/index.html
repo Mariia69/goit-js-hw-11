@@ -8,21 +8,25 @@
     <link rel="stylesheet" href="./css/styles.css" />
   </head>
   <body>
-      <h1>Image search</h1>
+    <h1 class="image">Image search</h1>
+    <form class="form">
+      <input
+        name="query"
+        ;
+        type="text"
+        class="input"
+        placeholder="Search images..."
+        required
+      />
+      <button type="submit" class="btn">Search</button>
+    </form>
 
-      <form id="form">
-        <label for="search-input">Search</label>
-        <input type="text" id="search-input" required>
-        <button class="button" type="submit" id="search-button">Search</button>
-      </form>
+    <div id="loader" style="display: none;">Loading...</div>
+    <span class="loader"></span>
+    <div class="gallery-wrap">
+      <ul class="gallery"></ul>
+    </div>
 
-      <div id="loader" style="display: none;">Loading...</div>
-
-      <div id="gallery">
-        <ul class="gallery"></ul>
-      </div>
-
-    
     <script type="module" src="./main.js"></script>
   </body>
 </html>
