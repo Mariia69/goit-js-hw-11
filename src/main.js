@@ -3,7 +3,7 @@ import "simplelightbox/dist/simple-lightbox.min.css";
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
-const url = new URL('https://pixabay.com/api/');
+const BASE_URL = 'https://pixabay.com/api';
 const galleryContainer = document.querySelector('.gallery');
 const loader = document.querySelector('.loader');
 
@@ -27,7 +27,7 @@ function searchImages(query) {
     safesearch: 'true',
   };
 
-  fetch(`${new URL}/?${new URLSearchParams(searchParams)}`)
+  fetch(`${BASE_URL}/?${new URLSearchParams(searchParams)}`)
     .then(response => {
       if (!response.ok) {
         throw new Error(response.status);
