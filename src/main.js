@@ -27,7 +27,7 @@ function searchImages(query) {
     safesearch: 'true',
   };
 
-  fetch(`${BASE_URL}/?${new URLSearchParams(searchParams)}`)
+  fetch(`${new URL}/?${new URLSearchParams(searchParams)}`)
     .then(response => {
       if (!response.ok) {
         throw new Error(response.status);
