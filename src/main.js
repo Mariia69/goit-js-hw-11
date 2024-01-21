@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function searchImages(query) {
   const searchParams = {
-    key: '41530173-f95b78bdec41263a85620f647',
+    key: '41947244-850f91172df29bd29838458db',
     q: query,
     image_type: 'photo',
     orientation: 'horizontal',
